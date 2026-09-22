@@ -1,0 +1,1603 @@
+https://chatgpt.com/s/t_6ab2c3a2fe50819184bbd20ba15b7e75
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+Bilkul bhai. Ab main tujhe **poore PyToolbox project ko zero se explain karta hoon** — kya banaya, kyun banaya, code kaise likha, CLI kya hai, tests kya hain, `pytest` kya karta hai, function ka `return` kaise flow hota hai, aur Git/GitHub ke saath humne kaise handle kiya.
+
+Isko tu **project understanding + interview explanation** dono ke liye use kar sakta hai.
+
+---
+
+# 1. Sabse pehle — humne banaya kya?
+
+Humne ek Python package/repository banaya:
+
+```text
+pytoolbox
+```
+
+Basically ye ek **small Python toolkit** hai jisme different functionalities ko separate modules mein rakha hai.
+
+Hamare project ka structure roughly:
+
+```text
+pytoolbox/
+│
+├── pyproject.toml
+├── README.md
+├── LICENSE
+│
+├── src/
+│   └── pytoolbox/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── utils.py
+│       ├── eda_reporter.py
+│       ├── loaders.py
+│       ├── logistic_regression.py
+│       ├── scraper.py
+│       └── scrapers.py
+│
+├── tests/
+│   ├── test_cli.py
+│   ├── test_utils.py
+│   ├── test_eda_reporter.py
+│   ├── test_loaders.py
+│   ├── test_scrapers.py
+│   └── test_logistic_regression.py
+│
+└── .github/
+    └── workflows/
+        └── ci.yml
+```
+
+Think of it like:
+
+```text
+             PyToolbox
+                 │
+      ┌──────────┼───────────┐
+      ↓          ↓           ↓
+    Utils       Data       ML
+      │          │           │
+    CLI        EDA       Logistic
+                         Regression
+      │
+   Scraper
+```
+
+---
+
+# 2. Humne ye architecture kyun use kiya?
+
+Ek hi Python file mein sab kuch likhne ke bajay functionality ko modules mein divide kiya.
+
+For example:
+
+```python
+# bad for large project
+
+everything.py
+```
+
+Instead:
+
+```text
+utils.py              → general utilities
+cli.py                → command line interface
+loaders.py            → dataset loading
+eda_reporter.py       → data analysis
+logistic_regression.py → ML model
+scraper.py            → web scraping
+```
+
+Ye **separation of concerns** hai.
+
+Matlab:
+
+> Ek file/module ka ek clear responsibility.
+
+Ye real-world software engineering mein important concept hai.
+
+---
+
+# 3. `pyproject.toml` kya hai?
+
+Ye project ka **configuration file** hai.
+
+Isme humne define kiya:
+
+```toml
+[project]
+name = "pytoolbox-krish"
+version = "0.1.0"
+```
+
+Matlab package ka naam aur version.
+
+Humne dependencies bhi define ki:
+
+```toml
+dependencies = [
+    "numpy",
+    "pandas",
+    "opencv-python",
+    "scikit-learn",
+]
+```
+
+Matlab project ko ye libraries chahiye.
+
+Development ke liye:
+
+```toml
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "black>=24",
+    "ruff>=0.6",
+]
+```
+
+Matlab developer ko testing aur formatting/linting ke tools chahiye.
+
+---
+
+# 4. Humne `pip install -e ".[dev]"` kyun kiya?
+
+Ye command:
+
+```powershell
+python -m pip install -e ".[dev]"
+```
+
+ka matlab:
+
+### `.`
+
+Current project.
+
+### `[dev]`
+
+`pyproject.toml` ke development dependencies install karo.
+
+### `-e`
+
+Editable installation.
+
+Iska benefit:
+
+Agar hum:
+
+```text
+src/pytoolbox/utils.py
+```
+
+change karein, toh package ko baar-baar reinstall karne ki zarurat nahi.
+
+---
+
+# 5. CLI kya hai?
+
+Ye important concept hai.
+
+**CLI = Command Line Interface**
+
+Matlab GUI ke buttons ke instead terminal commands se program use karna.
+
+Example:
+
+```powershell
+pytoolbox palindrome madam
+```
+
+ya:
+
+```powershell
+pytoolbox clamp 15 0 10
+```
+
+CLI ka purpose hai:
+
+> User terminal se application ko control kar sake.
+
+---
+
+# 6. Hamara `cli.py`
+
+Current architecture mein humne:
+
+```python
+def build_parser():
+```
+
+banaya.
+
+Ye parser create karta hai.
+
+Parser:
+
+```python
+parser = argparse.ArgumentParser(
+    prog="pytoolbox",
+    description="Small Python utilities for everyday programming tasks.",
+)
+```
+
+`argparse` Python ka built-in module hai jo command-line arguments handle karta hai.
+
+---
+
+# 7. Subcommands kya hote hain?
+
+Humne commands banayi:
+
+```text
+clamp
+palindrome
+chunk
+```
+
+Example:
+
+```text
+pytoolbox clamp 15 0 10
+```
+
+Yahan:
+
+```text
+pytoolbox → program
+clamp     → command
+15        → value
+0         → minimum
+10        → maximum
+```
+
+---
+
+# 8. `clamp` ka flow
+
+CLI parser:
+
+```python
+clamp_parser.add_argument("value", type=float)
+clamp_parser.add_argument("minimum", type=float)
+clamp_parser.add_argument("maximum", type=float)
+```
+
+Suppose user:
+
+```text
+pytoolbox clamp 15 0 10
+```
+
+de raha hai.
+
+Parser values ko approximately:
+
+```python
+args.value = 15
+args.minimum = 0
+args.maximum = 10
+```
+
+mein convert karega.
+
+Then:
+
+```python
+if args.command == "clamp":
+    print(clamp(args.value, args.minimum, args.maximum))
+```
+
+Matlab `cli.py` actual calculation khud nahi kar raha.
+
+It calls:
+
+```python
+clamp(...)
+```
+
+from:
+
+```python
+utils.py
+```
+
+Ye bhi good architecture hai.
+
+---
+
+# 9. CLI mein `main()` kya karta hai?
+
+Hamare code mein:
+
+```python
+def main():
+    args = build_parser().parse_args()
+```
+
+Pehle parser banega.
+
+Then:
+
+```python
+parse_args()
+```
+
+terminal se user ke arguments read karega.
+
+Then:
+
+```python
+if args.command == "clamp":
+```
+
+decide karega ki user kya execute karna chahta hai.
+
+Finally:
+
+```python
+print(...)
+```
+
+result terminal par dikhayega.
+
+Aur:
+
+```python
+if __name__ == "__main__":
+    main()
+```
+
+ka matlab:
+
+> Agar file directly run hui hai, toh `main()` execute karo.
+
+---
+
+# 10. Function ka `return` kaise kaam karta hai?
+
+Ye bahut important hai.
+
+Suppose:
+
+```python
+def square(x):
+    return x * x
+```
+
+Agar:
+
+```python
+result = square(5)
+```
+
+toh internally:
+
+```text
+square(5)
+   ↓
+5 * 5
+   ↓
+25
+   ↓
+return 25
+   ↓
+result = 25
+```
+
+`return` ka matlab:
+
+> Function apna result caller ko wapas de raha hai.
+
+---
+
+# 11. Example: EDA Reporter
+
+Humne banaya:
+
+```python
+class EDAReporter:
+```
+
+EDA = **Exploratory Data Analysis**
+
+Iska kaam dataset ko analyze karna hai.
+
+Constructor:
+
+```python
+def __init__(self, df):
+    self.df = df
+```
+
+Suppose:
+
+```python
+df = pandas DataFrame(...)
+```
+
+Then:
+
+```python
+reporter = EDAReporter(df)
+```
+
+object ke andar:
+
+```text
+self.df
+   ↓
+your dataframe
+```
+
+store ho gaya.
+
+---
+
+# 12. Summary function
+
+```python
+def get_summary_stats(self):
+    return self.df.describe().to_dict()
+```
+
+Flow:
+
+```text
+DataFrame
+   ↓
+describe()
+   ↓
+statistical summary
+   ↓
+to_dict()
+   ↓
+Python dictionary
+   ↓
+return
+```
+
+For example:
+
+```python
+{
+    "Age": {
+        "count": 5,
+        "mean": 22,
+        ...
+    }
+}
+```
+
+---
+
+# 13. Missing values
+
+```python
+def detect_missing_values(self):
+    return self.df.isnull().sum()
+```
+
+Flow:
+
+```text
+DataFrame
+   ↓
+isnull()
+   ↓
+True / False
+   ↓
+sum()
+   ↓
+missing count
+   ↓
+return
+```
+
+Example:
+
+```text
+A    1
+B    2
+```
+
+---
+
+# 14. Correlation
+
+```python
+def calculate_correlation_matrix(self):
+    numeric_df = self.df.select_dtypes(include=[np.number])
+    return numeric_df.corr()
+```
+
+Pehle sirf numeric columns:
+
+```python
+select_dtypes(...)
+```
+
+Then:
+
+```python
+corr()
+```
+
+correlation matrix banata hai.
+
+---
+
+# 15. Loaders kya karte hain?
+
+`loaders.py` ka responsibility dataset load karna hai.
+
+Humne:
+
+```python
+class LoanDataLoader:
+```
+
+banaya.
+
+Constructor:
+
+```python
+def __init__(self, filepath):
+    self.filepath = filepath
+```
+
+Suppose:
+
+```python
+loader = LoanDataLoader("loan.csv")
+```
+
+Then:
+
+```text
+self.filepath
+      ↓
+"loan.csv"
+```
+
+store.
+
+Then:
+
+```python
+loader.load_data()
+```
+
+runs:
+
+```python
+return pd.read_csv(self.filepath)
+```
+
+Flow:
+
+```text
+loan.csv
+   ↓
+pd.read_csv()
+   ↓
+DataFrame
+   ↓
+return
+```
+
+---
+
+# 16. `LoanPreprocessors`
+
+Iska job dataset mein engineered features banana hai.
+
+Example:
+
+```python
+df["Credit_Score_Sq"] = df["Credit_Score"] ** 2
+```
+
+Agar:
+
+```text
+Credit_Score = 700
+```
+
+then:
+
+```text
+700² = 490000
+```
+
+Similarly:
+
+```python
+df["DTI_Ratio_Sq"] = (df["DTI_Ratio"] ** 2).round(10)
+```
+
+---
+
+# 17. `.round(10)` kyun lagaya?
+
+Yahan ek interesting Python concept mila.
+
+Mathematically:
+
+```text
+0.4² = 0.16
+```
+
+But computer floating-point representation ke wajah se Python internally kabhi:
+
+```text
+0.16000000000000003
+```
+
+produce kar sakta hai.
+
+Isliye:
+
+```python
+.round(10)
+```
+
+use kiya.
+
+---
+
+# 18. Logistic Regression
+
+Ab ML part.
+
+File:
+
+```text
+logistic_regression.py
+```
+
+Isme humne three major components rakhe:
+
+```text
+dataset_load
+      ↓
+data_prepocessors
+      ↓
+LoanModelPipeline
+```
+
+---
+
+# 19. Dataset loading
+
+```python
+class dataset_load:
+```
+
+and:
+
+```python
+def load_data(self):
+    df = pd.read_csv(self.filepath)
+    return df
+```
+
+Again:
+
+```text
+CSV
+ ↓
+pd.read_csv()
+ ↓
+DataFrame
+ ↓
+return
+```
+
+---
+
+# 20. Model pipeline
+
+```python
+class LoanModelPipeline:
+```
+
+Constructor:
+
+```python
+def __init__(self, model=None):
+    self.model = model if model else LogisticRegression()
+```
+
+Iska matlab:
+
+Agar user model provide kare:
+
+```python
+LoanModelPipeline(my_model)
+```
+
+toh woh model use hoga.
+
+Agar model nahi diya:
+
+```python
+LoanModelPipeline()
+```
+
+toh default:
+
+```python
+LogisticRegression()
+```
+
+create hoga.
+
+---
+
+# 21. Training
+
+```python
+def train(self, X_train, y_train):
+    self.model.fit(X_train, y_train)
+```
+
+`fit()` model ko training data deta hai.
+
+Flow:
+
+```text
+X_train ─────┐
+             ↓
+        LogisticRegression
+             ↑
+y_train ─────┘
+             ↓
+       trained model
+```
+
+---
+
+# 22. Prediction
+
+Evaluation mein:
+
+```python
+prediction = self.model.predict(X_test)
+```
+
+Flow:
+
+```text
+trained model
+      +
+    X_test
+      ↓
+   predict()
+      ↓
+ predictions
+```
+
+Example:
+
+```text
+actual:
+[1, 0]
+
+prediction:
+[1, 0]
+```
+
+---
+
+# 23. Accuracy
+
+```python
+acc = accuracy_score(y_test, prediction)
+```
+
+Ye compare karta hai:
+
+```text
+actual vs predicted
+```
+
+and gives:
+
+```text
+accuracy
+```
+
+---
+
+# 24. Classification report
+
+```python
+report = classification_report(
+    y_test,
+    prediction,
+    output_dict=True
+)
+```
+
+Isme classification metrics milti hain, jaise:
+
+```text
+precision
+recall
+f1-score
+support
+```
+
+`output_dict=True` ki wajah se result Python dictionary form mein milta hai.
+
+---
+
+# 25. Confusion matrix
+
+```python
+conf_matrics = confusion_matrix(
+    y_test,
+    prediction
+)
+```
+
+Ye classification results ko matrix form mein deta hai.
+
+Binary classification mein roughly:
+
+```text
+                Predicted
+              0          1
+
+Actual 0     TN         FP
+
+Actual 1     FN         TP
+```
+
+---
+
+# 26. Humne `return` mein kya kiya?
+
+Initially code mein problem thi.
+
+Humne final code:
+
+```python
+return {
+    "accuracy": acc,
+    "report": report,
+    "confusion_matrix": conf_matrics
+}
+```
+
+banaya.
+
+This is VERY important.
+
+Function ek dictionary return kar raha hai.
+
+So:
+
+```python
+result = pipeline.evaluate(X_test, y_test)
+```
+
+ke baad:
+
+```python
+result
+```
+
+roughly:
+
+```python
+{
+    "accuracy": 1.0,
+    "report": {...},
+    "confusion_matrix": ...
+}
+```
+
+Then we can access:
+
+```python
+result["accuracy"]
+```
+
+or:
+
+```python
+result["confusion_matrix"]
+```
+
+---
+
+# 27. Pehle return mein kya galti thi?
+
+Old code:
+
+```python
+return {
+    acc,
+    report,
+    conf_matrics
+}
+```
+
+Ye dictionary nahi hai.
+
+Python isko **set** samajhne ki koshish karta hai.
+
+Problem ye hai ki `report` dictionary aur confusion matrix jaise objects hashable nahi hote.
+
+Correct:
+
+```python
+{
+    "accuracy": acc,
+    "report": report,
+    "confusion_matrix": conf_matrics
+}
+```
+
+Yahan:
+
+```text
+key                value
+────────────────────────────
+"accuracy"         acc
+"report"           report
+"confusion_matrix" matrix
+```
+
+---
+
+# 28. Ab main important part — TESTING
+
+Testing ka matlab:
+
+> Hum verify karte hain ki hamara code expected behaviour kar raha hai ya nahi.
+
+Example:
+
+Hamne function banaya:
+
+```python
+def square(x):
+    return x * x
+```
+
+Test:
+
+```python
+assert square(5) == 25
+```
+
+Agar:
+
+```text
+25 == 25
+```
+
+then:
+
+```text
+PASS ✅
+```
+
+Agar:
+
+```text
+25 == 30
+```
+
+then:
+
+```text
+FAIL ❌
+```
+
+---
+
+# 29. Pytest kya hai?
+
+`pytest` Python ka testing framework hai.
+
+Hum command chalate hain:
+
+```powershell
+python -m pytest
+```
+
+Pytest automatically tests discover karta hai.
+
+Generally files:
+
+```text
+test_*.py
+```
+
+ya:
+
+```text
+*_test.py
+```
+
+ko identify karta hai.
+
+---
+
+# 30. `python -m pytest` kyun?
+
+Tumhare system mein initially:
+
+```powershell
+pytest
+```
+
+directly PATH mein available nahi tha.
+
+Isliye:
+
+```powershell
+python -m pytest
+```
+
+use kiya.
+
+Meaning:
+
+> Current Python interpreter ke through pytest module run karo.
+
+This is actually a very useful habit because it makes sure you're using the same Python environment.
+
+---
+
+# 31. Hamara test example
+
+Logistic test:
+
+```python
+def test_dataset_load(tmp_path):
+```
+
+Humne temporary CSV banaya:
+
+```python
+data.to_csv(csv_file, index=False)
+```
+
+Then:
+
+```python
+loader = dataset_load(str(csv_file))
+result = loader.load_data()
+```
+
+Then assertions:
+
+```python
+assert isinstance(result, pd.DataFrame)
+```
+
+Meaning:
+
+> Result DataFrame hona chahiye.
+
+Then:
+
+```python
+assert len(result) == 3
+```
+
+Meaning:
+
+> 3 rows honi chahiye.
+
+---
+
+# 32. `assert` kya karta hai?
+
+`assert` ka matlab:
+
+> Main expect kar raha hoon ki ye condition TRUE ho.
+
+Example:
+
+```python
+assert 2 + 2 == 4
+```
+
+PASS.
+
+But:
+
+```python
+assert 2 + 2 == 5
+```
+
+FAIL.
+
+---
+
+# 33. Hamare tests ne actual bugs kaise pakde?
+
+Ye sabse important learning hai.
+
+Humne initially full test run kiya:
+
+```powershell
+python -m pytest -v
+```
+
+Aur errors aaye.
+
+For example:
+
+```text
+CLIApplication not found
+EDAReporter not found
+LoanDataLoader not found
+pytoolbox.scrapers not found
+```
+
+Iska matlab tests aur current code **synchronized nahi the**.
+
+Humne one-by-one investigate kiya.
+
+---
+
+# 34. CLI mismatch
+
+Test expected:
+
+```python
+CLIApplication
+```
+
+but actual code had:
+
+```python
+build_parser()
+```
+
+So humne test ko actual current design ke according update kiya.
+
+Test now verifies:
+
+```python
+parser = build_parser()
+```
+
+and:
+
+```python
+assert parser is not None
+```
+
+and commands:
+
+```python
+assert "clamp" in commands
+assert "palindrome" in commands
+assert "chunk" in commands
+```
+
+---
+
+# 35. EDA mismatch
+
+Old test expected:
+
+```python
+EDAReporter
+```
+
+but implementation had:
+
+```python
+EDAreporter
+```
+
+and:
+
+```text
+get_summary_status()
+```
+
+instead of:
+
+```text
+get_summary_stats()
+```
+
+Humne implementation ko clean naming ke saath reconcile kiya.
+
+---
+
+# 36. Scraper mismatch
+
+Old structure:
+
+```text
+scraper.py
+```
+
+but test expected:
+
+```python
+pytoolbox.scrapers
+```
+
+and:
+
+```python
+SimpleWebScraper
+```
+
+while old class name had typo:
+
+```python
+SimpleWebScrapper
+```
+
+We fixed the interface so test and implementation match.
+
+And installed:
+
+```text
+beautifulsoup4
+```
+
+because scraper needs BeautifulSoup.
+
+---
+
+# 37. Loader problem
+
+`loaders.py` empty tha.
+
+Test expected:
+
+```python
+LoanDataLoader
+LoanPreprocessors
+```
+
+So we implemented them.
+
+Then test failed because:
+
+```text
+0.16000000000000003 != 0.16
+```
+
+That taught us floating-point precision.
+
+We fixed it using:
+
+```python
+.round(10)
+```
+
+Then:
+
+```text
+1 passed
+```
+
+---
+
+# 38. Most important — testing workflow
+
+Humne basically ye workflow follow kiya:
+
+```text
+Write code
+    ↓
+Write tests
+    ↓
+Run pytest
+    ↓
+Error?
+    ↓
+Understand error
+    ↓
+Fix code/test
+    ↓
+Run pytest again
+    ↓
+All green
+```
+
+Ye software engineering ka normal workflow hai.
+
+---
+
+# 39. Full test command
+
+Finally humne:
+
+```powershell
+python -m pytest -v
+```
+
+run kiya.
+
+`-v` means:
+
+```text
+verbose
+```
+
+So pytest individual tests show karta hai.
+
+End mein:
+
+```text
+ALL PASSED
+```
+
+means current test suite ke according everything passed.
+
+---
+
+# 40. Git/GitHub mein humne kya kiya?
+
+Ye bhi important hai.
+
+Initially:
+
+```text
+Local repository
+        ↓
+GitHub repository
+```
+
+dono completely synchronized nahi the.
+
+Local mein Logistic Regression ka work tha, GitHub mein newer project files the.
+
+We did:
+
+```text
+git pull --rebase origin main
+```
+
+But conflict hua in:
+
+```text
+pyproject.toml
+```
+
+---
+
+# 41. Rebase conflict kya tha?
+
+Git basically bola:
+
+> Dono sides ne same file modify ki hai. Mujhe nahi pata kaunsa version rakhna hai.
+
+VS Code Merge Editor se humne dono changes combine kiye.
+
+Then:
+
+```powershell
+git add pyproject.toml
+```
+
+and:
+
+```powershell
+git rebase --continue
+```
+
+---
+
+# 42. Git commit kya hai?
+
+Commit ko samjho as:
+
+> Project ke changes ka saved checkpoint.
+
+Example:
+
+```powershell
+git commit -m "feat: add logistic regression implementation"
+```
+
+Means:
+
+```text
+Current changes
+      ↓
+Git history mein permanent checkpoint
+```
+
+---
+
+# 43. `git push`
+
+Commit initially sirf local machine par hota hai.
+
+```text
+Local Git
+   ↓
+commit
+   ↓
+GitHub
+```
+
+Push:
+
+```powershell
+git push origin main
+```
+
+local commits ko GitHub par bhejta hai.
+
+---
+
+# 44. Humne final mein kya verify kiya?
+
+```powershell
+git status
+```
+
+and got clean state.
+
+Meaning:
+
+```text
+Working tree clean
+```
+
+and:
+
+```text
+local main = origin/main
+```
+
+So:
+
+```text
+Laptop
+  │
+  │ git push
+  ↓
+GitHub
+```
+
+synced.
+
+---
+
+# 45. Complete project ka mental model
+
+Bhai isko **ye diagram** yaad rakh:
+
+```text
+                    PYTOOLBOX
+                        │
+          ┌─────────────┼─────────────┐
+          │             │             │
+        CLI           DATA           ML
+          │             │             │
+      cli.py        loaders.py   logistic_regression.py
+          │             │             │
+          ↓             ↓             ↓
+      argparse       pandas       sklearn
+          │             │             │
+          └─────────────┼─────────────┘
+                        ↓
+                    FUNCTIONS
+                        ↓
+                     RETURN
+                        ↓
+                    TEST CASES
+                        ↓
+                     PYTEST
+                        ↓
+                  PASS / FAIL
+                        ↓
+                    GIT COMMIT
+                        ↓
+                    GIT PUSH
+                        ↓
+                     GITHUB
+```
+
+---
+
+# 46. Interview mein agar pooche: "What did you build?"
+
+Tu simple English mein bol sakta hai:
+
+> **"I built a modular Python package called PyToolbox. I separated utilities, CLI functionality, data loading, exploratory data analysis, web scraping, and a logistic regression pipeline into different modules. I also wrote pytest-based unit tests to verify the behaviour of these modules and used Git and GitHub to manage and synchronize the project."**
+
+---
+
+# 47. Agar pooche: "What is pytest?"
+
+Bol:
+
+> **"Pytest is a Python testing framework used to automatically discover and execute test functions. I used assertions to verify that my functions return the expected results."**
+
+---
+
+# 48. Agar pooche: "What is CLI?"
+
+Bol:
+
+> **"CLI stands for Command Line Interface. It allows users to interact with an application through terminal commands instead of a graphical interface. In my project I used Python's argparse module to implement commands such as clamp, palindrome and chunk."**
+
+---
+
+# 49. Agar pooche: "What is return?"
+
+Bol:
+
+> **"`return` sends a value from a function back to the code that called the function. For example, my model evaluation function returns a dictionary containing accuracy, classification report and confusion matrix."**
+
+Example:
+
+```python
+result = pipeline.evaluate(X_test, y_test)
+```
+
+then:
+
+```python
+result["accuracy"]
+```
+
+accesses the returned value.
+
+---
+
+# 50. Sabse important learning
+
+Bhai, iss project mein actual learning **sirf Logistic Regression nahi thi**.
+
+Tumne ek mini **software engineering workflow** practice kiya:
+
+```text
+Python
+  ↓
+Functions / Classes
+  ↓
+Modules
+  ↓
+Package
+  ↓
+Dependencies
+  ↓
+CLI
+  ↓
+Unit Testing
+  ↓
+pytest
+  ↓
+Debugging
+  ↓
+Git
+  ↓
+GitHub
+```
+
+Aur sabse important habit:
+
+> **Error ko dekh ke blindly code change nahi karna — pehle samajhna hai ki error implementation ka hai, test ka hai, dependency ka hai, ya project structure ka.**
+
+Ye habit DSA, ROS, ML, robotics projects — **sab jagah kaam aayegi.**
+
+
