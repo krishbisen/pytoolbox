@@ -1,0 +1,277 @@
+%PDF-1.4
+%PyToolbox
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 2371 >>
+stream
+BT
+/F1 8 Tf
+36 806 Td
+10 TL
+(PYTOOLBOX - CODE EXPLANATION & WORKFLOW) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(1. PROJECT) Tj
+0 -10 Td
+(PyToolbox is a modular Python package.) Tj
+0 -10 Td
+(Modules: cli.py, utils.py, eda_reporter.py, loaders.py, logistic_regression.py, scraper.py.) Tj
+0 -10 Td
+(Tests live in tests/ and pyproject.toml stores package/dependency/test configuration.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(2. MODULE DESIGN) Tj
+0 -10 Td
+(Separation of concerns:) Tj
+0 -10 Td
+(utils -> utilities) Tj
+0 -10 Td
+(cli -> terminal interface) Tj
+0 -10 Td
+(loaders -> CSV loading and preprocessing) Tj
+0 -10 Td
+(eda_reporter -> exploratory data analysis) Tj
+0 -10 Td
+(logistic_regression -> ML pipeline) Tj
+0 -10 Td
+(scraper -> web scraping) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(3. INSTALLATION) Tj
+0 -10 Td
+(python -m pip install -e ".[dev]") Tj
+0 -10 Td
+(. = current project, [dev] = development tools, -e = editable install.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(4. CLI) Tj
+0 -10 Td
+(CLI means Command Line Interface. We use argparse. Commands: clamp, palindrome, chunk.) Tj
+0 -10 Td
+(Flow: terminal -> argparse -> parse_args() -> identify command -> call function -> print result.) Tj
+0 -10 Td
+(build_parser() creates the parser. main() handles parsed arguments.) Tj
+0 -10 Td
+(if __name__ == "__main__": main() runs main when cli.py is executed directly.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(5. FUNCTIONS AND RETURN) Tj
+0 -10 Td
+(Example:) Tj
+0 -10 Td
+(def square(x):) Tj
+0 -10 Td
+(    return x * x) Tj
+0 -10 Td
+(result = square(5)) Tj
+0 -10 Td
+(Flow: square(5) -> 5*5 -> return 25 -> result=25.) Tj
+0 -10 Td
+(return sends a value back to the caller.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(6. EDA) Tj
+0 -10 Td
+(EDA means Exploratory Data Analysis.) Tj
+0 -10 Td
+(EDAReporter stores a pandas DataFrame.) Tj
+0 -10 Td
+(get_summary_stats(): df.describe().to_dict()) Tj
+0 -10 Td
+(detect_missing_values(): df.isnull().sum()) Tj
+0 -10 Td
+(calculate_correlation_matrix(): select numeric columns, then corr().) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(7. LOADERS) Tj
+0 -10 Td
+(LoanDataLoader reads CSV data using pd.read_csv().) Tj
+0 -10 Td
+(LoanPreprocessors creates engineered features:) Tj
+0 -10 Td
+(Credit_Score_Sq = Credit_Score ** 2) Tj
+0 -10 Td
+(DTI_Ratio_Sq = (DTI_Ratio ** 2).round(10)) Tj
+0 -10 Td
+(The round handles floating-point values such as 0.16000000000000003.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 2704 >>
+stream
+BT
+/F1 8 Tf
+36 806 Td
+10 TL
+(8. LOGISTIC REGRESSION) Tj
+0 -10 Td
+(LoanModelPipeline uses sklearn LogisticRegression by default.) Tj
+0 -10 Td
+(Training: model.fit(X_train, y_train)) Tj
+0 -10 Td
+(Prediction: model.predict(X_test)) Tj
+0 -10 Td
+(Evaluation calculates accuracy, classification report and confusion matrix.) Tj
+0 -10 Td
+(It returns a dictionary:) Tj
+0 -10 Td
+({"accuracy": acc, "report": report, "confusion_matrix": conf_matrics}) Tj
+0 -10 Td
+(Then result["accuracy"] etc. can access named results.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(9. SCRAPER) Tj
+0 -10 Td
+(Flow: URL -> requests.get() -> HTML -> BeautifulSoup -> self.soup -> extract_heading().) Tj
+0 -10 Td
+(We fixed scraper/scrapers naming and installed BeautifulSoup4.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(10. TESTING AND PYTEST) Tj
+0 -10 Td
+(Testing checks expected behaviour. Example:) Tj
+0 -10 Td
+(assert square(5) == 25) Tj
+0 -10 Td
+(pytest is a Python testing framework.) Tj
+0 -10 Td
+(python -m pytest runs pytest with the current Python interpreter.) Tj
+0 -10 Td
+(python -m pytest -v gives verbose output.) Tj
+0 -10 Td
+(Pytest discovers test_*.py files and test_* functions.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(11. DEBUGGING) Tj
+0 -10 Td
+(The first full test run found mismatches between older tests and current code:) Tj
+0 -10 Td
+(- CLIApplication vs build_parser) Tj
+0 -10 Td
+(- EDAReporter naming/method mismatch) Tj
+0 -10 Td
+(- missing LoanDataLoader and LoanPreprocessors) Tj
+0 -10 Td
+(- scraper.py vs scrapers.py) Tj
+0 -10 Td
+(- SimpleWebScrapper vs SimpleWebScraper) Tj
+0 -10 Td
+(- missing BeautifulSoup4) Tj
+0 -10 Td
+(- empty Logistic Regression test file) Tj
+0 -10 Td
+(- incorrect evaluate() return structure) Tj
+0 -10 Td
+(We fixed each issue separately and reran focused tests before the full suite.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(12. GIT/GITHUB WORKFLOW) Tj
+0 -10 Td
+(local code -> git status -> git pull --rebase origin main -> resolve conflicts) Tj
+0 -10 Td
+(-> run tests -> git add -> git commit -> git push origin main -> git status.) Tj
+0 -10 Td
+(A commit is a local saved checkpoint. A push sends commits to GitHub.) Tj
+0 -10 Td
+(We resolved a pyproject.toml rebase conflict using the VS Code Merge Editor, then) Tj
+0 -10 Td
+(git add pyproject.toml and git rebase --continue.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(13. FINAL STATE) Tj
+0 -10 Td
+(python -m pytest -v -> complete test suite passed.) Tj
+0 -10 Td
+(Changes were committed and pushed, and git status was clean/synchronized.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(14. COMPLETE MENTAL MODEL) Tj
+0 -10 Td
+(PYTHON -> functions/classes -> modules -> package -> dependencies -> CLI) Tj
+0 -10 Td
+(      -> testing -> debugging -> Git commit -> Git push -> GitHub) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 700 >>
+stream
+BT
+/F1 8 Tf
+36 806 Td
+10 TL
+(15. INTERVIEW ANSWER) Tj
+0 -10 Td
+(I built a modular Python package called PyToolbox. I separated utilities, CLI,) Tj
+0 -10 Td
+(data loading, EDA, web scraping and a Logistic Regression pipeline into modules.) Tj
+0 -10 Td
+(I wrote pytest unit tests and used Git/GitHub for version control. During development) Tj
+0 -10 Td
+(I resolved interface mismatches, dependencies, floating-point precision and a rebase conflict.) Tj
+0 -10 Td
+() Tj
+0 -10 Td
+(KEY LESSON) Tj
+0 -10 Td
+(Do not change code blindly. First identify whether the problem is in the implementation,) Tj
+0 -10 Td
+(test, dependency or project structure. Make a focused change and rerun the test.) Tj
+0 -10 Td
+ET
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000020 00000 n 
+0000000069 00000 n 
+0000000138 00000 n 
+0000000206 00000 n 
+0000000332 00000 n 
+0000002755 00000 n 
+0000002881 00000 n 
+0000005637 00000 n 
+0000005763 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+6514
+%%EOF
