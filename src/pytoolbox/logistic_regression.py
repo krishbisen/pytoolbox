@@ -53,8 +53,8 @@ class LoanModelPipeline:
     acc = accuracy_score(y_test, prediction)
     report =  classification_report(y_test, prediction, output_dict = True)
     conf_matrics = confusion_matrix(y_test, prediction)
-    return {acc,
-            report,
-            conf_matrics
+    return {
+        "accuracy": acc,
+        "report": report,
+        "confusion_matrix": conf_matrics
     }
-
