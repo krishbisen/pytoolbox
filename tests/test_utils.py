@@ -1,23 +1,43 @@
 import pytest
-from pytoolbox.utils import DataStandardizer
 
-def test_data_standardizer_calculation():
-    # Arrange: define a sample dataset
-    data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0]
-    
-    # Act: initialize, fit, and transform
-    standardizer = DataStandardizer()
-    standardizer.fit(data)
-    transformed = standardizer.transform(data)
-    
-    # Assert: the mean of standardized data should be effectively 0.0
-    mean_val = sum(transformed) / len(transformed)
-    assert abs(mean_val) < 1e-5
+from pytoolbox import DataStandardizer, chunked, clamp, is_palindrome
 
-def test_transform_before_fit_raises_error():
-    # Arrange: un-fitted standardizer
+
+def test_clamp() -> None:
+    assert clamp(15, 0, 10) == 10
+    assert clamp(5, 0, 10) == 5
+
+
+def test_clamp_rejects_invalid_range() -> None:
+    with pytest.raises(ValueError):
+        clamp(5, 10, 0)
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [("level", True), ("Never odd or even", True), ("robot", False)],
+)
+def test_is_palindrome(text: str, expected: bool) -> None:
+    assert is_palindrome(text) is expected
+
+
+def test_chunked() -> None:
+    assert list(chunked([1, 2, 3, 4, 5], 2)) == [[1, 2], [3, 4], [5]]
+
+
+def test_chunked_rejects_zero() -> None:
+    with pytest.raises(ValueError):
+        list(chunked([1, 2], 0))
+
+
+def test_standardizer() -> None:
     standardizer = DataStandardizer()
-    
-    # Assert: calling transform without fit should raise a RuntimeError
+    standardizer.fit([10, 20, 30])
+    assert standardizer.transform([10, 20, 30]) == pytest.approx(
+        [-1.22474487, 0.0, 1.22474487]
+    )
+
+
+def test_standardizer_requires_fit() -> None:
     with pytest.raises(RuntimeError):
-        standardizer.transform([1.0, 2.0, 3.0])
+        DataStandardizer().transform([1, 2])
