@@ -1,0 +1,428 @@
+PYTOOLBOX — CODE EXPLANATION & COMPLETE WORKFLOW
+=================================================
+
+This document explains what we built, how the code works, how we debugged
+the repository, and how we used pytest and Git/GitHub.
+
+1. WHAT WE BUILT
+----------------
+PyToolbox is a modular Python package. Responsibilities are separated into:
+
+src/pytoolbox/
+    cli.py                  -> command-line interface
+    utils.py                -> general utilities
+    eda_reporter.py         -> exploratory data analysis
+    loaders.py              -> loan-data loading and preprocessing
+    logistic_regression.py  -> Logistic Regression pipeline
+    scraper.py              -> web scraping
+    scrapers.py             -> scraper compatibility module
+    __init__.py              -> package initialization
+
+tests/
+    test_cli.py
+    test_utils.py
+    test_eda_reporter.py
+    test_loaders.py
+    test_scrapers.py
+    test_logistic_regression.py
+
+2. WHY MODULES?
+---------------
+We use separation of concerns. Each module has a clear responsibility:
+utils -> utility logic
+cli -> terminal interface
+loaders -> data loading/preparation
+eda_reporter -> data analysis
+logistic_regression -> ML model
+scraper -> web scraping
+
+This makes code easier to understand, test, maintain, and extend.
+
+3. pyproject.toml
+-----------------
+pyproject.toml defines project metadata, Python requirements, dependencies,
+development tools, package location, CLI entry point, pytest configuration,
+and Black/Ruff settings.
+
+The CLI entry point is:
+
+    [project.scripts]
+    pytoolbox = "pytoolbox.cli:main"
+
+So the installed terminal command "pytoolbox" calls main() in cli.py.
+
+We installed the project with:
+
+    python -m pip install -e ".[dev]"
+
+"." means the current project, "[dev]" installs development dependencies,
+and "-e" means editable installation.
+
+4. WHAT IS A CLI?
+-----------------
+CLI means Command Line Interface. It lets a user interact with a program
+through terminal commands instead of a GUI.
+
+Our CLI uses Python's argparse module and provides:
+    clamp
+    palindrome
+    chunk
+
+Flow:
+
+    terminal command
+          |
+          v
+    argparse parser
+          |
+          v
+       parse_args()
+          |
+          v
+    identify command
+          |
+          v
+    call the correct function
+          |
+          v
+        print result
+
+build_parser() creates the parser. main() parses the arguments and calls
+the appropriate function. The line:
+
+    if __name__ == "__main__":
+        main()
+
+runs main() when the file is executed directly.
+
+5. FUNCTIONS AND RETURN
+-----------------------
+A function can return a value to its caller.
+
+    def square(x):
+        return x * x
+
+    result = square(5)
+
+Flow:
+
+    square(5) -> 5 * 5 -> return 25 -> result = 25
+
+"return" sends the result from a function back to the code that called it.
+
+6. EDA REPORTER
+---------------
+EDA means Exploratory Data Analysis.
+
+EDAReporter stores a pandas DataFrame:
+
+    reporter = EDAReporter(df)
+
+Summary:
+
+    return self.df.describe().to_dict()
+
+Flow:
+    DataFrame -> describe() -> summary -> to_dict() -> return dictionary
+
+Missing values:
+
+    return self.df.isnull().sum()
+
+Correlation:
+
+    numeric_df = self.df.select_dtypes(include=[np.number])
+    return numeric_df.corr()
+
+7. LOADERS
+----------
+LoanDataLoader reads a CSV:
+
+    loader = LoanDataLoader("loan.csv")
+    df = loader.load_data()
+
+Internally:
+
+    return pd.read_csv(self.filepath)
+
+Flow:
+    loan.csv -> pandas.read_csv() -> DataFrame -> return
+
+LoanPreprocessors creates engineered features:
+
+    df["Credit_Score_Sq"] = df["Credit_Score"] ** 2
+
+For a credit score of 700:
+
+    700 ** 2 = 490000
+
+For DTI:
+
+    df["DTI_Ratio_Sq"] = (df["DTI_Ratio"] ** 2).round(10)
+
+The round handles floating-point representation such as
+0.16000000000000003 versus mathematical 0.16.
+
+8. LOGISTIC REGRESSION PIPELINE
+--------------------------------
+The module contains dataset_load, data_prepocessors, and LoanModelPipeline.
+
+Default model:
+
+    self.model = model if model else LogisticRegression()
+
+Training:
+
+    self.model.fit(X_train, y_train)
+
+Prediction:
+
+    prediction = self.model.predict(X_test)
+
+Evaluation calculates accuracy, classification report, and confusion matrix.
+
+It returns:
+
+    {
+        "accuracy": acc,
+        "report": report,
+        "confusion_matrix": conf_matrics
+    }
+
+Therefore:
+
+    result = pipeline.evaluate(X_test, y_test)
+    result["accuracy"]
+    result["report"]
+    result["confusion_matrix"]
+
+We fixed an earlier incorrect return expression:
+
+    {acc, report, conf_matrics}
+
+The corrected version uses named key/value pairs.
+
+9. WEB SCRAPER
+---------------
+The scraper stores a base URL and starts with self.soup = None.
+
+Flow:
+
+    URL
+     -> requests.get()
+     -> HTML response
+     -> BeautifulSoup
+     -> self.soup
+     -> extract_heading()
+
+During development we reconciled scraper.py/scrapers.py and
+SimpleWebScrapper/SimpleWebScraper naming differences. BeautifulSoup4 was
+installed because the scraper uses it.
+
+10. WHAT IS TESTING?
+--------------------
+Testing means checking whether code behaves as expected.
+
+    def square(x):
+        return x * x
+
+    assert square(5) == 25
+
+A true assertion passes; a false assertion fails.
+
+11. WHAT IS PYTEST?
+-------------------
+pytest is a Python testing framework.
+
+We run:
+
+    python -m pytest
+
+This uses the current Python interpreter to execute the pytest module.
+Verbose mode is:
+
+    python -m pytest -v
+
+"-v" means verbose.
+
+pytest discovers files such as test_*.py and test functions such as
+test_something().
+
+12. OUR TESTS
+-------------
+Logistic Regression tests verify:
+- CSV/data loading
+- DataFrame structure
+- engineered features
+- model training/evaluation
+- returned dictionary keys
+- accuracy range
+- confusion-matrix shape
+
+For example:
+
+    assert "accuracy" in result
+
+means the returned dictionary must contain an "accuracy" key.
+
+13. HOW WE DEBUGGED
+-------------------
+The first full test run exposed mismatches between older tests and newer
+source code.
+
+We found:
+- CLIApplication expected by an old test while current code uses build_parser
+- EDAReporter naming/method mismatch
+- LoanDataLoader and LoanPreprocessors missing from loaders.py
+- scraper.py versus scrapers.py naming mismatch
+- SimpleWebScrapper versus SimpleWebScraper naming mismatch
+- missing BeautifulSoup4 dependency
+- initially empty Logistic Regression tests
+- incorrect evaluate() return structure
+
+We fixed these one at a time.
+
+Debugging workflow:
+
+    run test
+       -> read exact error
+       -> identify code/test/dependency/structure issue
+       -> make focused change
+       -> rerun specific test
+       -> run complete suite
+
+14. FLOATING-POINT ISSUE
+------------------------
+The loader test expected 0.16 but Python produced
+0.16000000000000003. This is a floating-point representation issue.
+
+We used:
+
+    .round(10)
+
+to keep the engineered value at the required decimal precision.
+
+15. GIT AND GITHUB
+------------------
+Git tracks changes and creates version history. GitHub stores the remote
+repository.
+
+Workflow:
+
+    local code
+       |
+       v
+    git status
+       |
+       v
+    git pull --rebase origin main
+       |
+       v
+    resolve conflicts if needed
+       |
+       v
+    run tests
+       |
+       v
+    git add
+       |
+       v
+    git commit
+       |
+       v
+    git push origin main
+       |
+       v
+    git status
+
+A commit is a saved checkpoint in local Git history.
+
+    git commit -m "fix: reconcile tests and package modules"
+
+A push sends local commits to GitHub:
+
+    git push origin main
+
+16. REBASE CONFLICT
+-------------------
+During synchronization, pyproject.toml had changes on both local and remote
+branches. Git stopped because the versions conflicted.
+
+We used the VS Code Merge Editor to combine the needed configuration, then:
+
+    git add pyproject.toml
+    git rebase --continue
+
+17. FINAL STATE
+---------------
+We ran:
+
+    python -m pytest -v
+
+and the complete test suite passed.
+
+Then the changes were staged, committed, and pushed. Finally, git status
+showed a clean synchronized working tree.
+
+18. COMPLETE MENTAL MODEL
+-------------------------
+                    PYTOOLBOX
+                        |
+          +-------------+-------------+
+          |             |             |
+         CLI           DATA           ML
+          |             |             |
+        cli.py        loaders.py   logistic_regression.py
+          |             |             |
+       argparse       pandas       scikit-learn
+          |             |             |
+          +-------------+-------------+
+                        |
+                    FUNCTIONS
+                        |
+                      RETURN
+                        |
+                    TEST CASES
+                        |
+                      PYTEST
+                        |
+                    PASS / FAIL
+                        |
+                     GIT COMMIT
+                        |
+                     GIT PUSH
+                        |
+                     GITHUB
+
+19. INTERVIEW EXPLANATION
+-------------------------
+"I built a modular Python package called PyToolbox. I separated utilities,
+CLI functionality, data loading, exploratory data analysis, web scraping,
+and a Logistic Regression pipeline into different modules. I wrote pytest
+unit tests to verify the behaviour of these modules and used Git and GitHub
+for version control. During development I resolved module/interface
+mismatches, dependencies, a floating-point precision issue, and a Git
+rebase conflict."
+
+20. MOST IMPORTANT ENGINEERING LESSON
+-------------------------------------
+The project demonstrates:
+
+    Python
+      -> functions/classes
+      -> modules
+      -> package
+      -> dependencies
+      -> CLI
+      -> testing
+      -> debugging
+      -> Git
+      -> GitHub
+
+Key debugging habit:
+
+"Do not change code blindly. First determine whether the error is caused by
+the implementation, the test, a missing dependency, or project structure.
+Then make the smallest focused change and rerun the test."
+
+END OF DOCUMENT
