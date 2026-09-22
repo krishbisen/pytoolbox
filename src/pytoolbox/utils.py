@@ -1,49 +1,65 @@
+"""Reusable utilities for PyToolbox."""
+
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import List
 import math
+from collections.abc import Iterable, Sequence
+from typing import TypeVar
+
+T = TypeVar("T")
+
+
+def clamp(value: float, minimum: float, maximum: float) -> float:
+    """Return value constrained to the inclusive range."""
+    if minimum > maximum:
+        raise ValueError("minimum cannot be greater than maximum")
+    return max(minimum, min(value, maximum))
+
+
+def is_palindrome(text: str) -> bool:
+    """Check whether text is a palindrome, ignoring spaces and case."""
+    normalized = "".join(text.split()).casefold()
+    return normalized == normalized[::-1]
+
+
+def chunked(items: Sequence[T], size: int) -> Iterable[list[T]]:
+    """Yield a sequence in consecutive chunks of size."""
+    if size <= 0:
+        raise ValueError("size must be greater than zero")
+    for start in range(0, len(items), size):
+        yield list(items[start : start + size])
+
 
 class BaseTransformer(ABC):
-    """Abstract Base Class defining the structural contract for all data steps."""
-    
+    """Abstract contract for fit/transform style data utilities."""
+
     @abstractmethod
-    def fit(self, data: List[float]) -> None:
-        """Calculate internal parameters from training data."""
-        pass
-        
+    def fit(self, data: Sequence[float]) -> None:
+        """Learn parameters from data."""
+
     @abstractmethod
-    def transform(self, data: List[float]) -> List[float]:
-        """Apply transformation math to the data based on calculated parameters."""
-        pass
+    def transform(self, data: Sequence[float]) -> list[float]:
+        """Transform data using learned parameters."""
+
 
 class DataStandardizer(BaseTransformer):
-    """Encapsulates Z-score standardization: (x - mean) / std_dev"""
-    
+    """Z-score standardizer implemented without third-party dependencies."""
+
     def __init__(self) -> None:
         self.mean: float = 0.0
         self.std_dev: float = 1.0
-        self._is_fitted: bool = False  # Encapsulated state variable
+        self._is_fitted = False
 
-    def fit(self, data: List[float]) -> None:
-        """Calculate the mean and standard deviation from the data collection."""
+    def fit(self, data: Sequence[float]) -> None:
         if not data:
-            raise ValueError("Cannot fit an empty dataset.")
-            
-        n = len(data)
-        self.mean = sum(data) / n
-        
-        # Calculate variance: average of squared differences from the mean
-        variance = sum((x - self.mean) ** 2 for x in data) / n
-        
-        # Standard deviation is the square root of variance
+            raise ValueError("cannot fit an empty dataset")
+        self.mean = sum(data) / len(data)
+        variance = sum((x - self.mean) ** 2 for x in data) / len(data)
         self.std_dev = math.sqrt(variance) if variance > 0 else 1.0
         self._is_fitted = True
 
-    def transform(self, data: List[float]) -> List[float]:
-        """Apply Z-score transformation to scale data vectors."""
+    def transform(self, data: Sequence[float]) -> list[float]:
         if not self._is_fitted:
-            raise RuntimeError("The standardizer must be fitted before transforming data.")
-        if not data:
-            return []
-            
-        # Z-score math: (x - mean) / std_dev
-        return [(x - self.mean) / self.std_dev for x in data]    
+            raise RuntimeError("standardizer must be fitted before transforming")
+        return [(x - self.mean) / self.std_dev for x in data]
