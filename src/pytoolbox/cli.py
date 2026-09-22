@@ -1,29 +1,43 @@
+"""Command-line interface for PyToolbox."""
+
+from __future__ import annotations
+
 import argparse
-from pathlib import Path
-from cv_helpers import ImageProcessor
 
-class CLIApplication:
-    """Handles command-line argument parsing and tool execution."""
-    def __init__(self):
-        self.parser = argparse.ArgumentParser(description="PyToolbox CLI Utility")
-        self._setup_arguments()
+from .utils import chunked, clamp, is_palindrome
 
-    def _setup_arguments(self) -> None:
-        self.parser.add_argument("--input", type=str, required=True, help="Path to input image")
-        self.parser.add_argument("--output", type=str, required=True, help="Path to output processed image")
-        self.parser.add_argument("--blur", action="store_true", help="Apply Gaussian blur")
 
-    def run(self) -> None:
-        args = self.parser.parse_args()
-        processor = ImageProcessor(args.input)
-        
-        processor.convert_to_grayscale()
-        if args.blur:
-            processor.apply_gaussian_blur()
-            
-        processor.save_output(args.output)
-        print(f"Successfully processed {args.input} -> {args.output}")
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="pytoolbox",
+        description="Small Python utilities for everyday programming tasks.",
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    clamp_parser = subparsers.add_parser("clamp", help="constrain a number to a range")
+    clamp_parser.add_argument("value", type=float)
+    clamp_parser.add_argument("minimum", type=float)
+    clamp_parser.add_argument("maximum", type=float)
+
+    palindrome_parser = subparsers.add_parser("palindrome", help="check text")
+    palindrome_parser.add_argument("text")
+
+    chunk_parser = subparsers.add_parser("chunk", help="split values into chunks")
+    chunk_parser.add_argument("values", nargs="+")
+    chunk_parser.add_argument("--size", type=int, required=True)
+
+    return parser
+
+
+def main() -> None:
+    args = build_parser().parse_args()
+    if args.command == "clamp":
+        print(clamp(args.value, args.minimum, args.maximum))
+    elif args.command == "palindrome":
+        print(is_palindrome(args.text))
+    elif args.command == "chunk":
+        print(list(chunked(args.values, args.size)))
+
 
 if __name__ == "__main__":
-    app = CLIApplication()
-    app.run()
+    main()
