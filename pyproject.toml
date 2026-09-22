@@ -9,11 +9,22 @@ description = "Small, typed Python utilities for the Month 1 AI & Robotics engin
 readme = "README.md"
 requires-python = ">=3.11"
 license = {file = "LICENSE"}
-authors = [{name = "Krish Bisen"}]
-dependencies = []
+authors = [{name = "Krish Bisen", email = "krishbisen4@gmail.com"}]
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "opencv-python",
+    "scikit-learn",
+]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov>=5", "black>=24", "ruff>=0.6"]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "black>=24",
+    "ruff>=0.6",
+]
 
 [project.scripts]
 pytoolbox = "pytoolbox.cli:main"
