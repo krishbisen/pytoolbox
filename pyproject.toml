@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytoolbox-krish"
-version = "0.1.0"
-description = "Small, typed Python utilities for the Month 1 AI & Robotics engineering roadmap."
+version = "0.2.0"
+description = "Python utilities and reusable ML engineering patterns."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {file = "LICENSE"}
@@ -37,7 +37,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra"
+addopts = "-ra --cov=pytoolbox --cov-report=term-missing --cov-report=xml --cov-fail-under=80"
 
 [tool.black]
 line-length = 88
