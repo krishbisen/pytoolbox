@@ -52,7 +52,7 @@ def test_logging_configuration_and_cli(caplog, monkeypatch):
     with caplog.at_level(logging.INFO, logger="pytoolbox.cli"):
         main()
 
-    assert "result=10" in caplog.text
+    assert "result=10.0" in caplog.text
 
 
 def test_cli_other_commands(caplog, monkeypatch):
