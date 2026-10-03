@@ -53,3 +53,15 @@ def test_logging_configuration_and_cli(caplog, monkeypatch):
         main()
 
     assert "result=10" in caplog.text
+
+
+def test_cli_other_commands(caplog, monkeypatch):
+    for argv, expected in [
+        (["pytoolbox", "palindrome", "level"], "result=True"),
+        (["pytoolbox", "chunk", "a", "b", "c", "--size", "2"], "result=['a', 'b', 'c']"),
+    ]:
+        monkeypatch.setattr(sys, "argv", argv)
+        caplog.clear()
+        with caplog.at_level(logging.INFO, logger="pytoolbox.cli"):
+            main()
+        assert expected in caplog.text
