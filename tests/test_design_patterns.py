@@ -1,11 +1,15 @@
+from logging import getLogger
+
 from pytoolbox.design_patterns import (
     LoggerSingleton,
+    LoggingObserver,
     LogisticRegressionStrategy,
     ModelFactory,
     RandomForestStrategy,
     SklearnPredictorAdapter,
     TrainingObserver,
     TrainingPipeline,
+    TrainingSubject,
 )
 
 
@@ -62,8 +66,27 @@ def test_observer_receives_events():
     ]
 
 
+def test_observer_detach_and_logging_observer(caplog):
+    subject = TrainingSubject()
+    observer = LoggingObserver(getLogger("test-training"))
+    subject.attach(observer)
+
+    with caplog.at_level("INFO", logger="test-training"):
+        subject.notify("training_started", samples=4)
+
+    assert "training_event=training_started" in caplog.text
+
+    subject.detach(observer)
+    caplog.clear()
+    subject.notify("training_completed", samples=4)
+    assert caplog.text == ""
+
+
 def test_singleton_returns_same_provider():
-    assert LoggerSingleton("a") is LoggerSingleton("b")
+    first = LoggerSingleton("a")
+    second = LoggerSingleton("b")
+    assert first is second
+    assert first.logger is second.logger
 
 
 def test_adapter_wraps_sklearn_model():
