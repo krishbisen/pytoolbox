@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import logging
 
+from .logging_config import configure_logging
 from .utils import chunked, clamp, is_palindrome
+
+logger = logging.getLogger(__name__)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -30,13 +34,15 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    configure_logging()
     args = build_parser().parse_args()
+
     if args.command == "clamp":
-        print(clamp(args.value, args.minimum, args.maximum))
+        logger.info("result=%s", clamp(args.value, args.minimum, args.maximum))
     elif args.command == "palindrome":
-        print(is_palindrome(args.text))
+        logger.info("result=%s", is_palindrome(args.text))
     elif args.command == "chunk":
-        print(list(chunked(args.values, args.size)))
+        logger.info("result=%s", list(chunked(args.values, args.size)))
 
 
 if __name__ == "__main__":
