@@ -1,5 +1,8 @@
 # PyToolbox
 
+[![Tests](https://github.com/krishbisen/pytoolbox/actions/workflows/tests.yml/badge.svg)](https://github.com/krishbisen/pytoolbox/actions/workflows/tests.yml)
+![Coverage](https://img.shields.io/badge/coverage-92.95%25-brightgreen)
+
 Reusable Python utilities developed during the engineering foundation phase of the AI & Robotics roadmap.
 
 ## Month 2 engineering work
@@ -36,7 +39,9 @@ Run tests with coverage:
 python -m pytest --cov=pytoolbox --cov-report=term-missing
 ```
 
-The Month 2 target is **80%+ test coverage**. The CI workflow enforces that threshold.
+**Verified engineering-set result:** 31 tests passed with **92.95% coverage**, above the roadmap's 80% target.
+
+The GitHub Actions workflow enforces the 80% minimum on pushes and pull requests.
 
 ## Architecture
 
