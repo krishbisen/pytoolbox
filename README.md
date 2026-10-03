@@ -1,148 +1,75 @@
 # PyToolbox
 
-A comprehensive Python utility library providing essential tools and utilities for common programming tasks.
+Reusable Python utilities developed during the engineering foundation phase of the AI & Robotics roadmap.
 
-## Overview
+## Month 2 engineering work
 
-PyToolbox is a lightweight Python package designed to streamline development workflows by providing a collection of reusable, well-tested utilities. Whether you're building data pipelines, web applications, or command-line tools, PyToolbox offers practical solutions to accelerate your development.
+This repository now contains the Month 2 engineering patterns required by the roadmap:
 
-## Features
+- SOLID-oriented separation of responsibilities
+- Strategy pattern for interchangeable ML models
+- Factory pattern for model creation
+- Observer pattern for training lifecycle events
+- Singleton pattern for shared logger access
+- Adapter pattern for a common inference interface
+- Abstract `BaseModel` and `BasePipeline` contracts
+- Structured logging configuration
+- Pytest coverage configuration
 
-- **Utility Functions**: A rich collection of helper functions for string manipulation, data processing, and common operations
-- **Data Structures**: Specialized data structures optimized for performance
-- **Type Safety**: Type hints throughout for better IDE support and code quality
-- **Well-Tested**: Comprehensive test suite ensuring reliability
-- **Lightweight**: Minimal dependencies, easy to integrate into any project
-- **Python 3.7+**: Full support for modern Python versions
+## Development setup
 
-## Installation
-
-Install PyToolbox via pip:
-
-```bash
-pip install pytoolbox
+```powershell
+python -m pip install -e ".[dev]"
 ```
 
-Or clone the repository for development:
+## Tests
 
-```bash
-git clone https://github.com/krishbisen/pytoolbox.git
-cd pytoolbox
-pip install -e .
+Run the complete suite:
+
+```powershell
+python -m pytest
 ```
 
-## Quick Start
+Run tests with coverage:
 
-```python
-from pytoolbox import *
-
-# Start using pytoolbox utilities in your project
+```powershell
+python -m pytest --cov=pytoolbox --cov-report=term-missing
 ```
 
-## Project Structure
+The Month 2 target is **80%+ test coverage**. The CI workflow enforces that threshold.
 
-```
-pytoolbox/
-├── src/              # Source code
-├── tests/            # Test suite
-├── README.md         # This file
-└── .gitignore        # Git ignore rules
-```
+## Architecture
 
-## Usage Examples
+```text
+Application
+    |
+    v
+TrainingPipeline
+    |
+    +--> ModelStrategy
+    |       +--> LogisticRegressionStrategy
+    |       +--> RandomForestStrategy
+    |
+    +--> TrainingObserver
+            +--> LoggingObserver
 
-### Example 1: Basic Utilities
-
-```python
-# Your example usage here
-```
-
-### Example 2: Data Processing
-
-```python
-# Your example usage here
+ModelFactory selects the strategy.
+SklearnPredictorAdapter normalizes third-party model output.
+BaseModel/BasePipeline define reusable contracts.
 ```
 
-## Testing
+## CLI
 
-Run the test suite to ensure everything is working correctly:
-
-```bash
-pytest tests/
+```powershell
+pytoolbox clamp 15 0 10
+pytoolbox palindrome "Never odd or even"
+pytoolbox chunk a b c d --size 2
 ```
 
-To run tests with coverage:
+## Repository
 
-```bash
-pytest --cov=src tests/
-```
-
-## Development
-
-### Setting Up Development Environment
-
-```bash
-git clone https://github.com/krishbisen/pytoolbox.git
-cd pytoolbox
-pip install -e ".[dev]"
-```
-
-### Running Tests
-
-```bash
-pytest tests/
-```
-
-### Code Style
-
-This project follows PEP 8 style guidelines. Use tools like `black` and `flake8` to maintain consistent code quality:
-
-```bash
-black src/
-flake8 src/
-```
-
-## Contributing
-
-Contributions are welcome! Here's how you can help:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please ensure that:
-- Your code follows PEP 8 style guidelines
-- All tests pass
-- New features include tests and documentation
-- Your changes are well-documented
+https://github.com/krishbisen/pytoolbox
 
 ## License
 
-This project is currently unlicensed. Please check the repository for licensing information, or add a LICENSE file to define the project's license terms.
-
-## Changelog
-
-### v0.1.0 (Initial Release)
-- Initial release of PyToolbox
-- Core utility functions and data structures
-
-## Support
-
-For issues, questions, or suggestions:
-- Open an [issue on GitHub](https://github.com/krishbisen/pytoolbox/issues)
-- Check [existing discussions](https://github.com/krishbisen/pytoolbox/discussions)
-
-## Author
-
-**Krishna Bisen** - [@krishbisen](https://github.com/krishbisen)
-
-## Acknowledgments
-
-- Thanks to the Python community for inspiration and best practices
-- Contributors and users who provide feedback and improvements
-
----
-
-Made with ❤️ by [Krishna Bisen](https://github.com/krishbisen)
+MIT
